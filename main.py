@@ -1,11 +1,5 @@
-from fastapi import FastAPI
+from backend.app.ingestion.loader import load_document
 
-app = FastAPI()
-
-@app.get("/")
-def home():
-    return {"message": "Backend running with uv"}
-
-@app.get("/users")
-def get_users():
-    return {"message": "This is the users thing "}
+docs = load_document("file.txt")
+print(len(docs))
+print(docs[0].page_content[:200])
