@@ -1,7 +1,16 @@
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_openai import OpenAIEmbeddings
+from dotenv import load_dotenv
 
-def get_embedding_model():
-    model = HuggingFaceEmbeddings(
-        model_name = "all-MiniLM-L6-v2"
-    )
-    return model
+load_dotenv()
+
+embeddings = OpenAIEmbeddings(model = "text-embedding-3-small")
+
+def embed_text(text:str):
+    return embeddings.embed_query(text)
+
+if __name__ == "__main__":
+    sample = "Hello from Doc-Chat-AI"
+    vector = embed_text(sample)
+    
+    print("Vector length:", len(vector))
+    print(vector[:5])
