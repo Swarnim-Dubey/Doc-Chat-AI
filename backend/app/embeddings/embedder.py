@@ -1,14 +1,17 @@
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from vertexai.language_models import TextEmbeddingModel
 from dotenv import load_dotenv
 import os
+import vertexai
 
 #loading env variables here
 load_dotenv()
 
+vertexai.init(project="")
 # initializing gemini embeddings
 embeddings = GoogleGenerativeAIEmbeddings(
-    model="models/embedding-001",
-    google_api_key = os.getenv("AIzaSyBRcqxrn4j0HGwJNUb8ToYpq4YrQcDnUF8") # google gemini api key
+    model="models/text-embedding-004",
+    google_api_key = os.getenv("GOOGLE_API_KEY") # google gemini api key
 )
 
 def embed_text(text : str):
@@ -20,5 +23,3 @@ if __name__ == "__main__":
     
     print("Vector length:", len(vector))
     print(vector[:5])
-
-print("API KEY:", os.getenv("GOOGLE_API_KEY"))
