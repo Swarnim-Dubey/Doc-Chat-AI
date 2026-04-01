@@ -1,13 +1,13 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from app.pipeline import run_pipeline
+from app.llm.llm import ask_llm
 
 router = APIRouter()
 
 class QueryRequest(BaseModel):
     query : str
 
-@router.post("/ask")
-def ask(req: QueryRequest):
-    result = run_pipeline(req.query)
-    return result
+@router.post("/chat")
+def chat(q: QueryRequest):
+    answer = ask_llm(q.query)
+    return {"answer":answer}
