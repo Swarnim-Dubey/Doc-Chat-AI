@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doc-Chat-AI</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="container">
+
+        <headers>
+            <h1>Doc-Chat-AI</h1>
+        </headers>
+
+
+        <div class="upload-section">
+            <input type="file" id="fileInput" />
+            <button onclick="uploadFile()">Upload</button>
+        </div>
+        
+        <div id="chatbox" class="chat-box"></div>
+
+        <div class="input-section">
+            <input type="text" id="userInput" placeholder="Ask Here...." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    
+</body>
+</html>
