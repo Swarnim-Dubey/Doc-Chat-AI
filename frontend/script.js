@@ -1,66 +1,92 @@
-// testing
+const body = document.body;
+const themeBtn = document.getElementById("themeToggle");
 
+// 🌗 Theme toggle
+themeBtn.addEventListener("click", () => {
+  body.classList.toggle("dark");
+  themeBtn.textContent = body.classList.contains("dark") ? "☀️" : "🌙";
+});
+
+// 📂 Upload logic
+const uploadBtn = document.getElementById("uploadBtn");
+const fileInput = document.getElementById("fileInput");
 const chatBox = document.getElementById("chatBox");
 
-function addMessage(content, role) {
-  const div = document.createElement("div");
-  div.classList.add("message", role);
-  div.textContent = content;
-  chatBox.appendChild(div);
-
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// 📂 Upload File
-async function uploadFile() {
-  const fileInput = document.getElementById("fileInput");
-  const file = fileInput.files[0];
-
-  if (!file) {
-    alert("Select a file first!");
+uploadBtn.addEventListener("click", async () => {
+  if (!fileInput.files.length) {
+    alert("Select a file first");
     return;
   }
 
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", fileInput.files[0]);
+
+  addMessage("Uploading document...", "bot");
 
   try {
-    await fetch("http://localhost:8000/upload", {
+    const res = await fetch("http://localhost:8000/upload", {
       method: "POST",
-      body: formData,
+      body: formData
     });
 
-    alert("File uploaded successfully!");
-  } catch (error) {
-    console.error(error);
-    alert("Upload failed!");
+    if (!res.ok) throw new Error("Upload failed");
+
+    const data = await res.json();
+    addMessage(data.message || "Document processed successfully!", "bot");
+
+  } catch (err) {
+    console.error(err);
+    addMessage("❌ Failed to upload document", "bot");
   }
-}
+});
 
-// 💬 Send Message
+// 💬 Chat logic
+const sendBtn = document.getElementById("sendBtn");
+const input = document.getElementById("userInput");
+
+sendBtn.addEventListener("click", sendMessage);
+input.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
+
 async function sendMessage() {
-  const input = document.getElementById("userInput");
-  const text = input.value;
-
+  const text = input.value.trim();
   if (!text) return;
 
   addMessage(text, "user");
   input.value = "";
 
+  // show loading message
+  const loadingMsg = addMessage("Analyzing your document...", "bot");
+
   try {
-    const response = await fetch("http://localhost:8000/chat", {
+    const res = await fetch("http://localhost:8000/chat", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({ query: text }),
+      body: JSON.stringify({ query: text }) // ✅ correct key
     });
 
-    const data = await response.json();
+    if (!res.ok) throw new Error("API error");
 
-    addMessage(data.answer, "bot");
-  } catch (error) {
-    console.error(error);
-    addMessage("Error connecting to server", "bot");
+    const data = await res.json();
+
+    // replace loading text with actual answer
+    loadingMsg.innerText = data.answer || "No response from AI";
+
+  } catch (err) {
+    console.error(err);
+    loadingMsg.innerText = "❌ Error getting response from server";
   }
+}
+
+// 🧱 Message renderer
+function addMessage(text, sender) {
+  const msg = document.createElement("div");
+  msg.classList.add("message", sender);
+  msg.innerText = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  return msg; // 🔥 important for updating loading message
 }
