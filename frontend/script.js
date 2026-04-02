@@ -1,13 +1,11 @@
 const body = document.body;
 const themeBtn = document.getElementById("themeToggle");
 
-// 🌗 Theme toggle
 themeBtn.addEventListener("click", () => {
   body.classList.toggle("dark");
   themeBtn.textContent = body.classList.contains("dark") ? "☀️" : "🌙";
 });
 
-// 📂 Upload logic
 const uploadBtn = document.getElementById("uploadBtn");
 const fileInput = document.getElementById("fileInput");
 const chatBox = document.getElementById("chatBox");
@@ -36,11 +34,10 @@ uploadBtn.addEventListener("click", async () => {
 
   } catch (err) {
     console.error(err);
-    addMessage("❌ Failed to upload document", "bot");
+    addMessage("Failed to upload document", "bot");
   }
 });
 
-// 💬 Chat logic
 const sendBtn = document.getElementById("sendBtn");
 const input = document.getElementById("userInput");
 
@@ -72,21 +69,19 @@ async function sendMessage() {
 
     const data = await res.json();
 
-    // replace loading text with actual answer
     loadingMsg.innerText = data.answer || "No response from AI";
 
   } catch (err) {
     console.error(err);
-    loadingMsg.innerText = "❌ Error getting response from server";
+    loadingMsg.innerText = "Error getting response from server";
   }
 }
 
-// 🧱 Message renderer
 function addMessage(text, sender) {
   const msg = document.createElement("div");
   msg.classList.add("message", sender);
   msg.innerText = text;
   chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
-  return msg; // 🔥 important for updating loading message
+  return msg;
 }
