@@ -7,16 +7,13 @@ const viewer = document.getElementById("viewer");
 const sendBtn = document.getElementById("sendBtn");
 const input = document.getElementById("userInput");
 
-// 🌙 Theme toggle
 themeBtn.addEventListener("click", () => {
   body.classList.toggle("dark");
   themeBtn.textContent = body.classList.contains("dark") ? "☀️" : "🌙";
 });
 
-// 📂 Open file picker
 uploadBtn.addEventListener("click", () => fileInput.click());
 
-// 👀 Preview file + upload
 fileInput.addEventListener("change", () => {
   const file = fileInput.files[0];
   if (!file) return;
@@ -25,39 +22,55 @@ fileInput.addEventListener("change", () => {
 
   if (file.type.startsWith("image/")) {
     viewer.innerHTML = `<img src="${url}" class="preview-img" />`;
-  } else if (file.type === "application/pdf") {
+  }
+
+  else if (file.type.includes("pdf")) {
     viewer.innerHTML = `<iframe src="${url}" class="preview-pdf"></iframe>`;
-  } else {
-    viewer.innerHTML = `<p>Preview not supported</p>`;
+  }
+
+  else if (file.type.includes("text") || file.name.endsWith(".txt")) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      viewer.innerHTML = `<pre class="text-preview">${e.target.result}</pre>`;
+    };
+    reader.readAsText(file);
+  }
+
+  else {
+    viewer.innerHTML = `
+      <div class="file-info">
+        <p>${file.name}</p>
+        <p>Preview not available</p>
+      </div>
+    `;
   }
 
   uploadFile(file);
 });
 
-// 🚀 Upload
 async function uploadFile(file) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const loadingMsg = addMessage("📤 Uploading document...", "bot");
+  const loadingMsg = addMessage("Uploading document...", "bot");
 
   try {
     const res = await fetch("http://localhost:8000/upload", {
       method: "POST",
-      body: formData
+      body: formData,
     });
 
     if (!res.ok) throw new Error();
 
     const data = await res.json();
-    loadingMsg.innerText = data.message || "✅ Document ready!";
-
+    loadingMsg.innerHTML = formatText(
+      data.message || "Document ready! Ask something."
+    );
   } catch {
-    loadingMsg.innerText = "❌ Upload failed";
+    loadingMsg.innerText = "Upload failed";
   }
 }
 
-// 💬 Chat
 sendBtn.addEventListener("click", sendMessage);
 input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
@@ -76,41 +89,39 @@ async function sendMessage() {
     const res = await fetch("http://localhost:8000/chat", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ query: text })
+      body: JSON.stringify({ query: text }),
     });
 
     if (!res.ok) throw new Error();
 
     const data = await res.json();
-    typeText(loadingMsg, data.answer || "No response");
 
+    typeText(loadingMsg, data.answer || "No response");
   } catch {
-    loadingMsg.innerText = "❌ Error";
+    loadingMsg.innerText = "Error getting response";
   }
 }
 
-// ✨ Typing effect
 function typeText(el, text) {
-  el.innerText = "";
+  el.innerHTML = "";
   let i = 0;
 
   const interval = setInterval(() => {
-    el.innerText += text[i];
+    el.innerHTML = formatText(text.substring(0, i));
     i++;
-    if (i >= text.length) clearInterval(interval);
-  }, 15);
+    if (i > text.length) clearInterval(interval);
+  }, 10);
 }
 
-// 💬 Add message
 function addMessage(text, sender) {
   const msg = document.createElement("div");
   msg.classList.add("message", sender);
 
   const bubble = document.createElement("div");
   bubble.classList.add("bubble");
-  bubble.innerText = text;
+  bubble.innerHTML = formatText(text);
 
   msg.appendChild(bubble);
   chatBox.appendChild(msg);
@@ -118,4 +129,11 @@ function addMessage(text, sender) {
   chatBox.scrollTop = chatBox.scrollHeight;
 
   return bubble;
+}
+
+function formatText(text) {
+  return text
+    .replace(/\n/g, "<br>")
+    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+    .replace(/(\d+\.\s)/g, "<br><br>$1");
 }
