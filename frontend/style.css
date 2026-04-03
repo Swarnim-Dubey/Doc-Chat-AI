@@ -75,7 +75,8 @@ header button {
 #chatBox {
   padding: 15px;
   overflow-y: auto;
-  max-height: 250px;
+  max-height: 260px;
+  scrollbar-width: thin;
 }
 
 .input-area {
@@ -105,7 +106,7 @@ header button {
 /* MESSAGES */
 .message {
   display: flex;
-  margin: 8px 0;
+  margin: 10px 0;
 }
 
 .message.user {
@@ -113,17 +114,23 @@ header button {
 }
 
 .bubble {
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 12px;
   max-width: 70%;
+  line-height: 1.6;
+  white-space: normal;
+  word-wrap: break-word;
+  font-size: 14px;
 }
 
 .message.user .bubble {
   background: #2563eb;
+  color: white;
 }
 
 .message.bot .bubble {
   background: #1f2937;
+  color: #e5e7eb;
 }
 
 /* PREVIEW */
@@ -137,4 +144,20 @@ header button {
   width: 90%;
   height: 90%;
   border: none;
+}
+
+.text-preview {
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  background: #111827;
+  padding: 15px;
+  border-radius: 10px;
+  color: #e5e7eb;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+button:hover{
+  opacity: 0.05;
 }
