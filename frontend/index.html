@@ -1,42 +1,45 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Doc Chat AI</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>DocChat AI</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="container">
 
-    <header>
-      <h1>Doc Chat AI</h1>
-      <button id="themeToggle" class="theme-btn">🌙</button>
-    </header>
+<header>
+  <h1>DocChat AI</h1>
+  <div>
+    <button id="themeToggle">🌙</button>
+    <button id="uploadBtn">📂</button>
+  </div>
+</header>
 
-    <main>
+<div class="container">
 
-      <!-- Upload Section -->
-      <div class="upload-section">
-        <input type="file" id="fileInput" />
-        <button id="uploadBtn">Upload Document</button>
-      </div>
-
-      <!-- Chat Area -->
-      <div class="chat-box" id="chatBox">
-        <div class="message bot">Upload a document to start getting insights.</div>
-      </div>
-
-      <!-- Input -->
-      <div class="input-area">
-        <input type="text" id="userInput" placeholder="Ask something about your document..." />
-        <button id="sendBtn">Ask</button>
-      </div>
-
-    </main>
+  <div class="sidebar">
+    <button onclick="fileInput.click()">Upload File</button>
+    <input type="file" id="fileInput" hidden />
   </div>
 
-  <script src="script.js"></script>
+  <div class="main">
+
+    <div id="viewer">
+      Your document will appear here
+    </div>
+
+    <div id="chatBox"></div>
+
+    <div class="input-area">
+      <input id="userInput" placeholder="Ask something..." />
+      <button id="sendBtn">Send</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
