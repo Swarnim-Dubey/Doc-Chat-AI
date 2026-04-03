@@ -1,58 +1,140 @@
-:root {
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.upload-section {
-  display: flex;
-  gap: 10px;
-  padding: 1rem;
-}
-
-.chat-box {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-.message {
-  padding: 10px 14px;
-  margin: 10px 0;
-  border-radius: 12px;
-  max-width: 70%;
-}
-
-.bot {
-  background: var(--card);
-}
-
-.user {
-  background: var(--accent);
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #0f172a;
   color: white;
-  margin-left: auto;
+}
+
+/* HEADER */
+header {
+  height: 60px;
+  background: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid #1f2937;
+}
+
+header h1 {
+  font-size: 18px;
+}
+
+header button {
+  background: #1f2937;
+  border: none;
+  color: white;
+  padding: 8px 10px;
+  margin-left: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* LAYOUT */
+.container {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: #020617;
+  border-right: 1px solid #1f2937;
+  padding: 20px;
+}
+
+.sidebar button {
+  width: 100%;
+  padding: 10px;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* VIEWER */
+#viewer {
+  flex: 1;
+  background: #020617;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #9ca3af;
+}
+
+/* CHAT */
+#chatBox {
+  padding: 15px;
+  overflow-y: auto;
+  max-height: 250px;
 }
 
 .input-area {
   display: flex;
-  padding: 1rem;
-  gap: 10px;
+  padding: 10px;
+  background: #111827;
 }
 
-input {
+.input-area input {
   flex: 1;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 10px;
+  border-radius: 8px;
   border: none;
   outline: none;
-  background: var(--card);
-  color: var(--text);
 }
 
-button {
-  padding: 12px 20px;
+.input-area button {
+  margin-left: 10px;
+  padding: 10px 15px;
+  background: #2563eb;
   border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 8px;
   color: white;
   cursor: pointer;
+}
+
+/* MESSAGES */
+.message {
+  display: flex;
+  margin: 8px 0;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  max-width: 70%;
+}
+
+.message.user .bubble {
+  background: #2563eb;
+}
+
+.message.bot .bubble {
+  background: #1f2937;
+}
+
+/* PREVIEW */
+.preview-img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+}
+
+.preview-pdf {
+  width: 90%;
+  height: 90%;
+  border: none;
 }
