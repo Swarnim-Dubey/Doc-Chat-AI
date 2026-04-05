@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from app.llm.llm import ask_llm
+from app.pipeline import run_pipeline
 
 router = APIRouter()
 
@@ -9,5 +9,5 @@ class QueryRequest(BaseModel):
 
 @router.post("/chat")
 def chat(q: QueryRequest):
-    answer = ask_llm(q.query)
-    return {"answer":answer}
+    result = run_pipeline(q.query)
+    return result
