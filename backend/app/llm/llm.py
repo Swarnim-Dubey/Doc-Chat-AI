@@ -1,9 +1,22 @@
 import requests
 
-def ask_llm(prompt : str) -> str:
+def ask_llm(query: str, context: str) -> str:
     try:
-        response =requests.post(
-            "http://ollama:11434/api/generate",  # docker internal network
+        prompt = f"""
+You are a helpful assistant.
+
+Answer ONLY from the given context.
+If answer is not in context, say "Not found in document".
+
+Context:
+{context}
+
+Question:
+{query}
+"""
+
+        response = requests.post(
+            "http://ollama:11434/api/generate",
             json={
                 "model": "llama3:8b",
                 "prompt": prompt,
