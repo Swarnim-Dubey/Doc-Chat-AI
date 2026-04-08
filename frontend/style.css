@@ -61,14 +61,56 @@ header button {
   flex-direction: column;
 }
 
-/* VIEWER */
-#viewer {
-  flex: 1;
+/* LIGHT THEME (default) */
+body {
+  background: #f9fafb;
+  color: #111827;
+}
+
+/* DARK THEME */
+body.dark {
+  background: #0f172a;
+  color: white;
+}
+
+/* Header */
+body.dark header {
+  background: #111827;
+}
+
+body:not(.dark) header {
+  background: #e5e7eb;
+}
+
+/* Sidebar */
+body.dark .sidebar {
   background: #020617;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+}
+
+body:not(.dark) .sidebar {
+  background: #f3f4f6;
+}
+
+/* Viewer */
+body.dark #viewer {
+  background: #020617;
   color: #9ca3af;
+}
+
+body:not(.dark) #viewer {
+  background: #ffffff;
+  color: #374151;
+}
+
+/* Input area */
+body:not(.dark) .input-area {
+  background: #e5e7eb;
+}
+
+/* Chat bubbles */
+body:not(.dark) .message.bot .bubble {
+  background: #e5e7eb;
+  color: #111827;
 }
 
 /* CHAT */
@@ -159,5 +201,5 @@ header button {
 }
 
 button:hover{
-  opacity: 0.05;
+  opacity: 0.8;
 }
