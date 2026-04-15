@@ -1,8 +1,8 @@
-from app.retrieval.retriever import retrive_docs
+from app.retrieval.retriever import retrieve_docs
 from app.llm.generator import generate_response
 
 def run_pipeline(query:str):
-    docs = retrive_docs(query)
+    docs = retrieve_docs(query)
 
     if not docs:
         return{
