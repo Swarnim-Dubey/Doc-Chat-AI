@@ -17,7 +17,7 @@ Question:
     response = requests.post(
         f"{OLLAMA_URL}/api/generate",
         json={
-            "model": "llama3",
+            "model": "llama3:latest",
             "prompt": prompt,
             "stream": False
         }
