@@ -10,4 +10,4 @@ def retrieve_docs(query:str, k: int=3):
     #similarity search
     docs = db.similarity_search(query, k=k)
 
-    return [doc.page_content for doc in docs]
+    return docs
