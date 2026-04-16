@@ -9,6 +9,7 @@ const input = document.getElementById("userInput");
 const fileList = document.getElementById("fileList");
 
 let files = [];
+let activeFile = null;
 
 /* THEME */
 themeBtn.addEventListener("click", () => {
@@ -43,25 +44,37 @@ fileInput.addEventListener("change", () => {
   const file = fileInput.files[0];
   if (!file) return;
 
-  files.push(file);
-  renderFileList();
-  previewFile(file);
+  const url = URL.createObjectURL(file);
+
+  // ✅ SHOW PREVIEW IMMEDIATELY (before upload)
+  if (file.type.startsWith("image/")) {
+    viewer.innerHTML = `<img src="${url}" class="preview-img" />`;
+  }
+
+  else if (file.type.includes("pdf")) {
+    viewer.innerHTML = `<iframe src="${url}" class="preview-pdf"></iframe>`;
+  }
+
+  else if (file.type.includes("text") || file.name.endsWith(".txt")) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      viewer.innerHTML = `<pre class="text-preview">${e.target.result}</pre>`;
+    };
+    reader.readAsText(file);
+  }
+
+  else {
+    viewer.innerHTML = `
+      <div style="color: #888; text-align:center;">
+        <p>${file.name}</p>
+        <p>Preview not supported</p>
+      </div>
+    `;
+  }
+
+  // ✅ THEN upload file
   uploadFile(file);
 });
-
-function renderFileList() {
-  fileList.innerHTML = "";
-
-  files.forEach((file) => {
-    const div = document.createElement("div");
-    div.className = "file-item";
-    div.innerText = file.name;
-
-    div.onclick = () => previewFile(file);
-
-    fileList.appendChild(div);
-  });
-}
 
 function previewFile(file) {
   const url = URL.createObjectURL(file);
@@ -82,29 +95,44 @@ async function uploadFile(file) {
   const formData = new FormData();
   formData.append("file", file);
 
-  addMessage("Uploading...", "bot");
+  const loadingMsg = addMessage("Uploading...", "bot");
 
   try {
-    await fetch("http://localhost:8000/upload", {
+    const res = await fetch("http://localhost:8000/upload", {
       method: "POST",
       body: formData,
     });
+
+    if (!res.ok) throw new Error();
+
+    const data = await res.json();
+
+    // ✅ IMPORTANT: set active file
+    activeFile = data.file;
+
+    loadingMsg.innerText = "Document ready! Ask something.";
+
+    console.log("Active file:", activeFile);
+
   } catch {
-    addMessage("Upload failed", "bot");
+    loadingMsg.innerText = "Upload failed";
   }
 }
-
 /* CHAT */
 sendBtn.addEventListener("click", sendMessage);
 
 async function sendMessage() {
   const text = input.value.trim();
-  if (!text) return;
+
+  if (!text || !activeFile) {
+    alert("Upload a file first!");
+    return;
+  }
 
   addMessage(text, "user");
   input.value = "";
 
-  const bubble = addMessage("", "bot");
+  const loadingMsg = addMessage("...", "bot");
 
   try {
     const res = await fetch("http://localhost:8000/chat", {
@@ -112,14 +140,18 @@ async function sendMessage() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ query: text }),
+      body: JSON.stringify({
+        query: text,
+        file: activeFile, // 🔥 KEY FIX
+      }),
     });
 
     const data = await res.json();
-    bubble.innerText = data.answer;
+
+    loadingMsg.innerText = data.answer;
 
   } catch {
-    bubble.innerText = "Error";
+    loadingMsg.innerText = "Error";
   }
 }
 
