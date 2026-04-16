@@ -46,7 +46,6 @@ fileInput.addEventListener("change", () => {
 
   const url = URL.createObjectURL(file);
 
-  // ✅ SHOW PREVIEW IMMEDIATELY (before upload)
   if (file.type.startsWith("image/")) {
     viewer.innerHTML = `<img src="${url}" class="preview-img" />`;
   }
@@ -72,7 +71,6 @@ fileInput.addEventListener("change", () => {
     `;
   }
 
-  // ✅ THEN upload file
   uploadFile(file);
 });
 
@@ -107,7 +105,6 @@ async function uploadFile(file) {
 
     const data = await res.json();
 
-    // ✅ IMPORTANT: set active file
     activeFile = data.file;
 
     loadingMsg.innerText = "Document ready! Ask something.";
