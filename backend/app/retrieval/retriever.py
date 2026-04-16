@@ -1,13 +1,8 @@
 from app.vectorstore.db import get_vectorstore
 
-def retrieve_docs(query:str, k: int=3):
-    """
-    Retrive top-k relavent documents from the vector store
-    """
+def retrieve_docs(query: str, file_name: str, k: int = 3):
+    db = get_vectorstore(file_name)
 
-    db = get_vectorstore()
-
-    #similarity search
     docs = db.similarity_search(query, k=k)
 
     return docs
