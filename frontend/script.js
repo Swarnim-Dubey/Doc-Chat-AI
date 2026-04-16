@@ -6,75 +6,96 @@ const chatBox = document.getElementById("chatBox");
 const viewer = document.getElementById("viewer");
 const sendBtn = document.getElementById("sendBtn");
 const input = document.getElementById("userInput");
+const fileList = document.getElementById("fileList");
 
+let files = [];
+
+/* THEME */
 themeBtn.addEventListener("click", () => {
   body.classList.toggle("dark");
-  themeBtn.textContent = body.classList.contains("dark") ? "☀️" : "🌙";
 });
 
+/* RESIZER */
+const resizer = document.getElementById("resizer");
+const content = document.querySelector(".content");
+
+let isResizing = false;
+
+resizer.addEventListener("mousedown", () => {
+  isResizing = true;
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (!isResizing) return;
+
+  const leftWidth = (e.clientX / window.innerWidth) * 100;
+  content.style.gridTemplateColumns = `${leftWidth}% 5px ${100 - leftWidth}%`;
+});
+
+document.addEventListener("mouseup", () => {
+  isResizing = false;
+});
+
+/* FILE HANDLING */
 uploadBtn.addEventListener("click", () => fileInput.click());
 
 fileInput.addEventListener("change", () => {
   const file = fileInput.files[0];
   if (!file) return;
 
+  files.push(file);
+  renderFileList();
+  previewFile(file);
+  uploadFile(file);
+});
+
+function renderFileList() {
+  fileList.innerHTML = "";
+
+  files.forEach((file) => {
+    const div = document.createElement("div");
+    div.className = "file-item";
+    div.innerText = file.name;
+
+    div.onclick = () => previewFile(file);
+
+    fileList.appendChild(div);
+  });
+}
+
+function previewFile(file) {
   const url = URL.createObjectURL(file);
 
   if (file.type.startsWith("image/")) {
     viewer.innerHTML = `<img src="${url}" class="preview-img" />`;
-  }
-
+  } 
   else if (file.type.includes("pdf")) {
     viewer.innerHTML = `<iframe src="${url}" class="preview-pdf"></iframe>`;
-  }
-
-  else if (file.type.includes("text") || file.name.endsWith(".txt")) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      viewer.innerHTML = `<pre class="text-preview">${e.target.result}</pre>`;
-    };
-    reader.readAsText(file);
-  }
-
+  } 
   else {
-    viewer.innerHTML = `
-      <div class="file-info">
-        <p>${file.name}</p>
-        <p>Preview not available</p>
-      </div>
-    `;
+    viewer.innerHTML = `<p>Preview not available</p>`;
   }
+}
 
-  uploadFile(file);
-});
-
+/* API */
 async function uploadFile(file) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const loadingMsg = addMessage("Uploading document...", "bot");
+  addMessage("Uploading...", "bot");
 
   try {
-    const res = await fetch("http://localhost:8000/upload", {
+    await fetch("http://localhost:8000/upload", {
       method: "POST",
       body: formData,
     });
-
-    if (!res.ok) throw new Error();
-
-    const data = await res.json();
-    loadingMsg.innerHTML = formatText(
-      data.message || "Document ready! Ask something."
-    );
   } catch {
-    loadingMsg.innerText = "Upload failed";
+    addMessage("Upload failed", "bot");
   }
 }
 
+/* CHAT */
 sendBtn.addEventListener("click", sendMessage);
-input.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") sendMessage();
-});
 
 async function sendMessage() {
   const text = input.value.trim();
@@ -83,7 +104,7 @@ async function sendMessage() {
   addMessage(text, "user");
   input.value = "";
 
-  const loadingMsg = addMessage("...", "bot");
+  const bubble = addMessage("", "bot");
 
   try {
     const res = await fetch("http://localhost:8000/chat", {
@@ -94,34 +115,22 @@ async function sendMessage() {
       body: JSON.stringify({ query: text }),
     });
 
-    if (!res.ok) throw new Error();
-
     const data = await res.json();
+    bubble.innerText = data.answer;
 
-    typeText(loadingMsg, data.answer || "No response");
   } catch {
-    loadingMsg.innerText = "Error getting response";
+    bubble.innerText = "Error";
   }
 }
 
-function typeText(el, text) {
-  el.innerHTML = "";
-  let i = 0;
-
-  const interval = setInterval(() => {
-    el.innerHTML = formatText(text.substring(0, i));
-    i++;
-    if (i > text.length) clearInterval(interval);
-  }, 10);
-}
-
+/* UI */
 function addMessage(text, sender) {
   const msg = document.createElement("div");
-  msg.classList.add("message", sender);
+  msg.className = `message ${sender}`;
 
   const bubble = document.createElement("div");
-  bubble.classList.add("bubble");
-  bubble.innerHTML = formatText(text);
+  bubble.className = "bubble";
+  bubble.innerText = text;
 
   msg.appendChild(bubble);
   chatBox.appendChild(msg);
@@ -129,11 +138,4 @@ function addMessage(text, sender) {
   chatBox.scrollTop = chatBox.scrollHeight;
 
   return bubble;
-}
-
-function formatText(text) {
-  return text
-    .replace(/\n/g, "<br>")
-    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-    .replace(/(\d+\.\s)/g, "<br><br>$1");
 }

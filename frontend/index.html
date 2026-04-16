@@ -18,22 +18,38 @@
 
 <div class="container">
 
+  <!-- SIDEBAR -->
   <div class="sidebar">
-    <button onclick="fileInput.click()">Upload File</button>
+    <button onclick="fileInput.click()">+ Upload File</button>
+
+    <div id="fileList" class="file-list"></div>
+
     <input type="file" id="fileInput" hidden />
   </div>
 
+  <!-- MAIN CONTENT -->
   <div class="main">
 
-    <div id="viewer">
-      Your document will appear here
-    </div>
+    <div class="content">
 
-    <div id="chatBox"></div>
+      <!-- VIEWER -->
+      <div id="viewer" class="panel viewer">
+        <p class="placeholder">Upload a document to preview</p>
+      </div>
 
-    <div class="input-area">
-      <input id="userInput" placeholder="Ask something..." />
-      <button id="sendBtn">Send</button>
+      <!-- RESIZER -->
+      <div id="resizer"></div>
+
+      <!-- CHAT -->
+      <div class="chat-section">
+        <div id="chatBox"></div>
+
+        <div class="input-area">
+          <input id="userInput" placeholder="Ask something..." />
+          <button id="sendBtn">Send</button>
+        </div>
+      </div>
+
     </div>
 
   </div>
