@@ -1,15 +1,16 @@
 from app.retrieval.retriever import retrieve_docs
 from app.llm.generator import generate_response
 
-def run_pipeline(query:str):
-    docs = retrieve_docs(query)
+def run_pipeline(query: str, file_name: str):
+
+    docs = retrieve_docs(query, file_name)
 
     if not docs:
-        return{
-            "answer" : "no documents found",
-            "sources" : []
+        return {
+            "answer": "No relevant content found in this document.",
+            "sources": []
         }
-    
+
     context = "\n\n".join([doc.page_content for doc in docs])
 
     answer = generate_response(query, context)
