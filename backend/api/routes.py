@@ -1,30 +1,75 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile
 from pydantic import BaseModel
-from app.pipeline import run_pipeline
-from app.ingestion.loader import load_document
 import os
+import shutil
+
+from app.pipeline import run_pipeline
+from app.vectorstore.db import get_vectorstore
+
+from langchain_community.document_loaders import TextLoader, PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 router = APIRouter()
 
-UPLOAD_DIR = "backend/uploads"
+UPLOAD_DIR = "backend/data"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-
-class QueryRequest(BaseModel):
+class ChatRequest(BaseModel):
     query: str
+    file: str
 
 
 @router.post("/upload")
-async def upload(file: UploadFile = File(...)):
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
-    with open(file_path, "wb") as f:
-        content = await file.read()
-        f.write(content)
-    chunks = load_document(file_path)
+async def upload(file: UploadFile):
 
-    return {"message": f"Stored {chunks} chunks successfully"}
+    print("upload started")
+    file_name = file.filename.replace(" ", "_")
+
+    file_path = os.path.join(UPLOAD_DIR, file_name)
+
+    # Save file
+    with open(file_path, "wb") as f:
+        f.write(await file.read())
+
+    print("file saved !")
+
+    persist_dir = f"backend/vector_db/{file_name}"
+    if os.path.exists(persist_dir):
+        shutil.rmtree(persist_dir)
+
+    db = get_vectorstore(file_name)
+
+    print("DB created")
+
+    if file_name.endswith(".pdf"):
+        loader = PyPDFLoader(file_path)
+    else:
+        loader = TextLoader(file_path)
+
+    docs = loader.load()
+    print("docs loaded")
+
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=50
+    )
+    chunks = splitter.split_documents(docs)
+    print("docs split")
+
+    # Store embeddings
+    db.add_documents(chunks)
+    db.persist()
+    
+    print("stored in db")
+    return {
+        "message": "Document indexed successfully",
+        "file": file_name
+    }
 
 
 @router.post("/chat")
-def chat(q: QueryRequest):
-    return run_pipeline(q.query)
+async def chat(req: ChatRequest):
+
+    result = run_pipeline(req.query, req.file)
+
+    return result
