@@ -232,3 +232,27 @@ header button {
 button:hover {
   opacity: 0.9;
 }
+.viewer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* FORCE FULL SIZE */
+.preview-img,
+.preview-pdf,
+.text-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+
+/* FIX TEXT SCROLL */
+.text-preview {
+  overflow: auto;
+  padding: 15px;
+  background: #111;
+  color: #ddd;
+  font-size: 13px;
+}
