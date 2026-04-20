@@ -1,159 +1,155 @@
-const body = document.body;
-const themeBtn = document.getElementById("themeToggle");
-const uploadBtn = document.getElementById("uploadBtn");
 const fileInput = document.getElementById("fileInput");
-const chatBox = document.getElementById("chatBox");
 const viewer = document.getElementById("viewer");
 const sendBtn = document.getElementById("sendBtn");
-const input = document.getElementById("userInput");
-const fileList = document.getElementById("fileList");
+const userInput = document.getElementById("userInput");
+const toggleBtn = document.getElementById("themeToggle");
 
-let files = [];
-let activeFile = null;
+let uploadedFileName = null;
 
-/* THEME */
-themeBtn.addEventListener("click", () => {
-  body.classList.toggle("dark");
+/* =========================
+   THEME TOGGLE
+========================= */
+toggleBtn.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+  toggleBtn.textContent =
+    document.body.classList.contains("light") ? "☀️" : "🌙";
 });
 
-/* RESIZER */
-const resizer = document.getElementById("resizer");
-const content = document.querySelector(".content");
-
-let isResizing = false;
-
-resizer.addEventListener("mousedown", () => {
-  isResizing = true;
-});
-
-document.addEventListener("mousemove", (e) => {
-  if (!isResizing) return;
-
-  const leftWidth = (e.clientX / window.innerWidth) * 100;
-  content.style.gridTemplateColumns = `${leftWidth}% 5px ${100 - leftWidth}%`;
-});
-
-document.addEventListener("mouseup", () => {
-  isResizing = false;
-});
-
-/* FILE HANDLING */
-uploadBtn.addEventListener("click", () => fileInput.click());
-
-fileInput.addEventListener("change", () => {
+/* =========================
+   FILE UPLOAD (REAL BACKEND)
+========================= */
+fileInput.addEventListener("change", async () => {
   const file = fileInput.files[0];
   if (!file) return;
 
-  const url = URL.createObjectURL(file);
+  viewer.innerHTML = "";
 
-  if (file.type.startsWith("image/")) {
-    viewer.innerHTML = `<img src="${url}" class="preview-img" />`;
-  }
+  const progressBar = addProgressMessage(file.name);
 
-  else if (file.type.includes("pdf")) {
-    viewer.innerHTML = `<iframe src="${url}" class="preview-pdf"></iframe>`;
-  }
+  let progress = 0;
 
-  else if (file.type.includes("text") || file.name.endsWith(".txt")) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      viewer.innerHTML = `<pre class="text-preview">${e.target.result}</pre>`;
-    };
-    reader.readAsText(file);
-  }
-
-  else {
-    viewer.innerHTML = `
-      <div style="color: #888; text-align:center;">
-        <p>${file.name}</p>
-        <p>Preview not supported</p>
-      </div>
-    `;
-  }
-
-  uploadFile(file);
-});
-
-function previewFile(file) {
-  const url = URL.createObjectURL(file);
-
-  if (file.type.startsWith("image/")) {
-    viewer.innerHTML = `<img src="${url}" class="preview-img" />`;
-  } 
-  else if (file.type.includes("pdf")) {
-    viewer.innerHTML = `<iframe src="${url}" class="preview-pdf"></iframe>`;
-  } 
-  else {
-    viewer.innerHTML = `<p>Preview not available</p>`;
-  }
-}
-
-/* API */
-async function uploadFile(file) {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const loadingMsg = addMessage("Uploading...", "bot");
+  // fake smooth progress
+  const interval = setInterval(() => {
+    progress += 5;
+    if (progress <= 90) {
+      progressBar.style.width = progress + "%";
+    }
+  }, 100);
 
   try {
-    const res = await fetch("http://localhost:8000/upload", {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("http://127.0.0.1:8000/upload", {
       method: "POST",
       body: formData,
     });
 
-    if (!res.ok) throw new Error();
-
     const data = await res.json();
 
-    activeFile = data.file;
+    clearInterval(interval);
+    progressBar.style.width = "100%";
 
-    loadingMsg.innerText = "Document ready! Ask something.";
+    uploadedFileName = data.file;
 
-    console.log("Active file:", activeFile);
+    addMessage(`✅ ${data.file} is ready`, "bot");
 
-  } catch {
-    loadingMsg.innerText = "Upload failed";
+    renderPreview(file);
+
+  } catch (err) {
+    clearInterval(interval);
+    addMessage("❌ Upload failed", "bot");
+    console.error(err);
   }
-}
-/* CHAT */
+});
+
+/* =========================
+   CHAT (REAL AI CALL)
+========================= */
 sendBtn.addEventListener("click", sendMessage);
 
-async function sendMessage() {
-  const text = input.value.trim();
+userInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
 
-  if (!text || !activeFile) {
-    alert("Upload a file first!");
+async function sendMessage() {
+  const text = userInput.value.trim();
+  if (!text) return;
+
+  if (!uploadedFileName) {
+    addMessage("⚠️ Please upload a document first", "bot");
     return;
   }
 
   addMessage(text, "user");
-  input.value = "";
-
-  const loadingMsg = addMessage("...", "bot");
+  userInput.value = "";
 
   try {
-    const res = await fetch("http://localhost:8000/chat", {
+    const res = await fetch("http://127.0.0.1:8000/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         query: text,
-        file: activeFile, // 🔥 KEY FIX
+        file: uploadedFileName,
       }),
     });
 
     const data = await res.json();
 
-    loadingMsg.innerText = data.answer;
+    addMessage(data.answer || "No response", "bot");
 
-  } catch {
-    loadingMsg.innerText = "Error";
+  } catch (err) {
+    addMessage("❌ Error talking to AI", "bot");
+    console.error(err);
   }
 }
 
-/* UI */
+/* =========================
+   PREVIEW
+========================= */
+function renderPreview(file) {
+  const type = file.type;
+
+  if (type.startsWith("image/")) {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.className = "preview-img";
+    viewer.appendChild(img);
+  }
+
+  else if (type === "application/pdf") {
+    const iframe = document.createElement("iframe");
+    iframe.src = URL.createObjectURL(file);
+    iframe.className = "preview-pdf";
+    viewer.appendChild(iframe);
+  }
+
+  else if (type.startsWith("text/")) {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const div = document.createElement("div");
+      div.className = "text-preview";
+      div.textContent = reader.result;
+      viewer.appendChild(div);
+    };
+
+    reader.readAsText(file);
+  }
+
+  else {
+    viewer.innerHTML = "<p>Unsupported file type</p>";
+  }
+}
+
+/* =========================
+   UI HELPERS
+========================= */
 function addMessage(text, sender) {
+  const chatBox = document.getElementById("chatBox");
+
   const msg = document.createElement("div");
   msg.className = `message ${sender}`;
 
@@ -165,6 +161,30 @@ function addMessage(text, sender) {
   chatBox.appendChild(msg);
 
   chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-  return bubble;
+function addProgressMessage(fileName) {
+  const chatBox = document.getElementById("chatBox");
+
+  const msg = document.createElement("div");
+  msg.className = "message bot";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+
+  bubble.innerHTML = `
+    Uploading ${fileName}...
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+  `;
+
+  msg.appendChild(bubble);
+  chatBox.appendChild(msg);
+
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  return bubble.querySelector(".progress-fill");
 }

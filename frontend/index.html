@@ -6,53 +6,36 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="dark">
+<body>
 
 <header>
-  <h1>DocChat AI</h1>
+  <h1>Doc Chat</h1>
   <div>
     <button id="themeToggle">🌙</button>
-    <button id="uploadBtn">📂</button>
+    <button onclick="fileInput.click()">📂</button>
   </div>
 </header>
 
 <div class="container">
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
+  <aside class="sidebar">
     <button onclick="fileInput.click()">+ Upload File</button>
-
     <div id="fileList" class="file-list"></div>
-
     <input type="file" id="fileInput" hidden />
-  </div>
+  </aside>
 
-  <!-- MAIN CONTENT -->
-  <div class="main">
+  <main class="chat-section">
+    <div id="chatBox"></div>
 
-    <div class="content">
-
-      <!-- VIEWER -->
-      <div id="viewer" class="panel viewer">
-        <p class="placeholder">Upload a document to preview</p>
-      </div>
-
-      <!-- RESIZER -->
-      <div id="resizer"></div>
-
-      <!-- CHAT -->
-      <div class="chat-section">
-        <div id="chatBox"></div>
-
-        <div class="input-area">
-          <input id="userInput" placeholder="Ask something..." />
-          <button id="sendBtn">Send</button>
-        </div>
-      </div>
-
+    <div class="input-area">
+      <input id="userInput" placeholder="Ask something..." />
+      <button id="sendBtn">Send</button>
     </div>
+  </main>
 
-  </div>
+  <aside class="viewer" id="viewer">
+    <p class="placeholder">Upload a document to preview</p>
+  </aside>
 
 </div>
 
