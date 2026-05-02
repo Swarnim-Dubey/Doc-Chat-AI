@@ -3,6 +3,8 @@ const viewer = document.getElementById("viewer");
 const sendBtn = document.getElementById("sendBtn");
 const userInput = document.getElementById("userInput");
 const toggleBtn = document.getElementById("themeToggle");
+const loader = document.getElementById("loader");
+const modeSelect = document.getElementById("mode");
 
 let uploadedFileName = null;
 
@@ -84,6 +86,8 @@ async function sendMessage() {
   addMessage(text, "user");
   userInput.value = "";
 
+  loader.classList.remove("hidden");
+
   try {
     const res = await fetch("http://127.0.0.1:8000/chat", {
       method: "POST",
@@ -93,14 +97,18 @@ async function sendMessage() {
       body: JSON.stringify({
         query: text,
         file: uploadedFileName,
+        mode: modeSelect.value   // 🔥 NEW
       }),
     });
 
     const data = await res.json();
 
-    addMessage(data.answer || "No response", "bot");
+    loader.classList.add("hidden");
+
+    addMessageWithTyping(data.answer || "No response");
 
   } catch (err) {
+    loader.classList.add("hidden");
     addMessage("❌ Error talking to AI", "bot");
     console.error(err);
   }
@@ -187,4 +195,41 @@ function addProgressMessage(fileName) {
   chatBox.scrollTop = chatBox.scrollHeight;
 
   return bubble.querySelector(".progress-fill");
+}
+
+function typeTextI(element, text, speed = 20){
+  let i = 0;
+  function typing(){
+    if (i<text.length){
+      element.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typing, speed);
+    }
+  }
+  typing();
+}
+
+function addMessageWithTyping(text) {
+  const chatBox = document.getElementById("chatBox");
+
+  const msg = document.createElement("div");
+  msg.className = "message bot";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+
+  msg.appendChild(bubble);
+  chatBox.appendChild(msg);
+
+  let i = 0;
+  function typing() {
+    if (i < text.length) {
+      bubble.innerHTML += text.charAt(i);
+      i++;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      setTimeout(typing, 15);
+    }
+  }
+
+  typing();
 }

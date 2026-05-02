@@ -257,3 +257,64 @@ body.light .input-area button {
   background: #e5e7eb;
   border-color: #ccc;
 }
+
+/* MODE TOGGLE */
+.mode-toggle {
+  padding: 10px;
+  border-bottom: 1px solid #262626;
+}
+
+.mode-toggle select {
+  padding: 6px;
+  background: #111;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 6px;
+}
+
+/* LOADER */
+.loader {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, #4f46e5, #22c55e);
+  animation: loading 1s infinite linear;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* BETTER CHAT BUBBLES */
+.bubble {
+  padding: 12px 14px;
+  border-radius: 14px;
+  max-width: 75%;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.message.user .bubble {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+}
+
+.message.bot .bubble {
+  background: #18181b;
+  border: 1px solid #2a2a2a;
+}
+
+/* LIGHT MODE FIXES */
+body.light .message.bot .bubble {
+  background: #f3f4f6;
+  color: #111;
+}
+
+body.light .mode-toggle select {
+  background: #fff;
+  color: #111;
+}

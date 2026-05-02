@@ -24,9 +24,17 @@
     <input type="file" id="fileInput" hidden />
   </aside>
 
+  <div class="mode-toggle">
+    <label>Mode:</label>
+    <select id="mode">
+      <option value="strict">Strict</option>
+      <option value="creative">Creative</option>
+    </select>
+  </div>
+
   <main class="chat-section">
     <div id="chatBox"></div>
-
+    <div id="loader" class="loader hidden"></div>
     <div class="input-area">
       <input id="userInput" placeholder="Ask something..." />
       <button id="sendBtn">Send</button>
