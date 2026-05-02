@@ -17,6 +17,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 class ChatRequest(BaseModel):
     query: str
     file: str
+    mode: str = "strict"
 
 
 @router.post("/upload")
@@ -70,6 +71,33 @@ async def upload(file: UploadFile):
 @router.post("/chat")
 async def chat(req: ChatRequest):
 
-    result = run_pipeline(req.query, req.file)
+    db = get_vectorstore(req.file)
 
-    return result
+    retriever = db.as_retriever(search_kwargs={"k": 4})
+    docs = retriever.invoke(req.query)
+
+    context = "\n\n".join([doc.page_content for doc in docs])
+    if req.mode == "strict":
+        prompt = f"""
+        Answer ONLY from the document.
+        If the answer is not present, say: "Not found in document".
+
+        Context:
+        {context}
+
+        Question:
+        {req.query}
+        """
+    else:
+        prompt = f"""
+        Use the document if relevant, but you can also use general knowledge.
+
+        Context:
+        {context}
+
+        Question:
+        {req.query}
+        """
+    result = run_pipeline(prompt, req.file)
+
+    return {"answer": result}
