@@ -8,33 +8,36 @@ const modeSelect = document.getElementById("mode");
 
 let uploadedFileName = null;
 
-/* =========================
-   THEME TOGGLE
-========================= */
 toggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("light");
   toggleBtn.textContent =
     document.body.classList.contains("light") ? "☀️" : "🌙";
 });
 
-/* =========================
-   FILE UPLOAD (REAL BACKEND)
-========================= */
 fileInput.addEventListener("change", async () => {
   const file = fileInput.files[0];
   if (!file) return;
 
-  viewer.innerHTML = "";
+  const fileList = document.getElementById("fileList");
 
-  const progressBar = addProgressMessage(file.name);
+  // Create upload UI in sidebar
+  const fileItem = document.createElement("div");
+  fileItem.innerHTML = `
+    <div>${file.name}</div>
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+  `;
+
+  fileList.appendChild(fileItem);
+
+  const progressFill = fileItem.querySelector(".progress-fill");
 
   let progress = 0;
-
-  // fake smooth progress
   const interval = setInterval(() => {
-    progress += 5;
+    progress += 10;
     if (progress <= 90) {
-      progressBar.style.width = progress + "%";
+      progressFill.style.width = progress + "%";
     }
   }, 100);
 
@@ -50,24 +53,23 @@ fileInput.addEventListener("change", async () => {
     const data = await res.json();
 
     clearInterval(interval);
-    progressBar.style.width = "100%";
+    progressFill.style.width = "100%";
 
     uploadedFileName = data.file;
 
-    addMessage(`✅ ${data.file} is ready`, "bot");
+    // ✅ REMOVE PROGRESS BAR AFTER UPLOAD
+    setTimeout(() => {
+      fileItem.innerHTML = `📄 ${data.file}`;
+    }, 500);
 
     renderPreview(file);
 
   } catch (err) {
     clearInterval(interval);
-    addMessage("❌ Upload failed", "bot");
-    console.error(err);
+    fileItem.innerHTML = "❌ Upload failed";
   }
 });
 
-/* =========================
-   CHAT (REAL AI CALL)
-========================= */
 sendBtn.addEventListener("click", sendMessage);
 
 userInput.addEventListener("keypress", (e) => {
@@ -79,7 +81,7 @@ async function sendMessage() {
   if (!text) return;
 
   if (!uploadedFileName) {
-    addMessage("⚠️ Please upload a document first", "bot");
+    addMessage("Upload a document first", "bot");
     return;
   }
 
@@ -91,13 +93,11 @@ async function sendMessage() {
   try {
     const res = await fetch("http://127.0.0.1:8000/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: text,
         file: uploadedFileName,
-        mode: modeSelect.value   // 🔥 NEW
+        mode: document.getElementById("mode").value
       }),
     });
 
@@ -105,18 +105,14 @@ async function sendMessage() {
 
     loader.classList.add("hidden");
 
-    addMessageWithTyping(data.answer || "No response");
+    addMessageWithTyping(data.answer, data.sources);
 
   } catch (err) {
     loader.classList.add("hidden");
-    addMessage("❌ Error talking to AI", "bot");
-    console.error(err);
+    addMessage("Error", "bot");
   }
 }
 
-/* =========================
-   PREVIEW
-========================= */
 function renderPreview(file) {
   const type = file.type;
 
@@ -152,9 +148,6 @@ function renderPreview(file) {
   }
 }
 
-/* =========================
-   UI HELPERS
-========================= */
 function addMessage(text, sender) {
   const chatBox = document.getElementById("chatBox");
 
@@ -171,31 +164,31 @@ function addMessage(text, sender) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function addProgressMessage(fileName) {
-  const chatBox = document.getElementById("chatBox");
+// function addProgressMessage(fileName) {
+//   const chatBox = document.getElementById("chatBox");
 
-  const msg = document.createElement("div");
-  msg.className = "message bot";
+//   const msg = document.createElement("div");
+//   msg.className = "message bot";
 
-  const bubble = document.createElement("div");
-  bubble.className = "bubble";
+//   const bubble = document.createElement("div");
+//   bubble.className = "bubble";
 
-  bubble.innerHTML = `
-    Uploading ${fileName}...
-    <div class="progress-container">
-      <div class="progress-bar">
-        <div class="progress-fill"></div>
-      </div>
-    </div>
-  `;
+//   bubble.innerHTML = `
+//     Uploading ${fileName}...
+//     <div class="progress-container">
+//       <div class="progress-bar">
+//         <div class="progress-fill"></div>
+//       </div>
+//     </div>
+//   `;
 
-  msg.appendChild(bubble);
-  chatBox.appendChild(msg);
+//   msg.appendChild(bubble);
+//   chatBox.appendChild(msg);
 
-  chatBox.scrollTop = chatBox.scrollHeight;
+//   chatBox.scrollTop = chatBox.scrollHeight;
 
-  return bubble.querySelector(".progress-fill");
-}
+//   return bubble.querySelector(".progress-fill");
+// }
 
 function typeTextI(element, text, speed = 20){
   let i = 0;
@@ -209,7 +202,7 @@ function typeTextI(element, text, speed = 20){
   typing();
 }
 
-function addMessageWithTyping(text) {
+function addMessageWithTyping(text, sources = []) {
   const chatBox = document.getElementById("chatBox");
 
   const msg = document.createElement("div");
@@ -228,6 +221,16 @@ function addMessageWithTyping(text) {
       i++;
       chatBox.scrollTop = chatBox.scrollHeight;
       setTimeout(typing, 15);
+    } else {
+      if (sources && sources.length > 0) {
+        const sourceDiv = document.createElement("div");
+        sourceDiv.className = "sources";
+
+        sourceDiv.innerHTML = "<b>Sources:</b><br>" +
+          sources.map(s => "• " + s).join("<br>");
+
+        bubble.appendChild(sourceDiv);
+      }
     }
   }
 

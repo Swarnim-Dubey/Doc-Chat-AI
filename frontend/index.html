@@ -10,7 +10,13 @@
 
 <header>
   <h1>Doc Chat</h1>
-  <div>
+
+  <div class="header-actions">
+    <select id="mode">
+      <option value="strict">Strict</option>
+      <option value="creative">Creative</option>
+    </select>
+
     <button id="themeToggle">🌙</button>
     <button onclick="fileInput.click()">📂</button>
   </div>
@@ -18,29 +24,28 @@
 
 <div class="container">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <button onclick="fileInput.click()">+ Upload File</button>
-    <div id="fileList" class="file-list"></div>
+    <div id="fileList"></div>
     <input type="file" id="fileInput" hidden />
   </aside>
 
-  <div class="mode-toggle">
-    <label>Mode:</label>
-    <select id="mode">
-      <option value="strict">Strict</option>
-      <option value="creative">Creative</option>
-    </select>
-  </div>
-
+  <!-- CHAT -->
   <main class="chat-section">
+
     <div id="chatBox"></div>
+
     <div id="loader" class="loader hidden"></div>
+
     <div class="input-area">
       <input id="userInput" placeholder="Ask something..." />
       <button id="sendBtn">Send</button>
     </div>
+
   </main>
 
+  <!-- VIEWER -->
   <aside class="viewer" id="viewer">
     <p class="placeholder">Upload a document to preview</p>
   </aside>
