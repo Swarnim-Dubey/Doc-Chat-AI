@@ -1,101 +1,84 @@
-# Doc-Chat-AI
+# 🚀 Doc-Chat-AI
 
 > Your Personal AI That Understands *Your* Documents
 
-DOC-CHAT-AI is a powerful AI assistant designed to answer questions based on your own data — PDFs, notes, and articles. Instead of relying on generic internet knowledge, it focuses entirely on **what you upload**, making it a truly personalized intelligence system.
+**DOC-CHAT-AI** is a powerful AI assistant that answers questions based entirely on your own documents — PDFs, notes, and articles. It transforms static files into an interactive, intelligent knowledge system.
 
 ---
 
 ## ✨ Why DOC-CHAT-AI?
 
-Most AI tools give general answers.
-DOC-CHAT-AI is different.
+Most AI tools give generic answers.  
+DOC-CHAT-AI is different — it focuses only on *your uploaded data*.
 
-It allows you to:
+With it, you can:
 
-* Ask questions about your own notes
-* Instantly retrieve key insights from large documents
-* Turn static PDFs into interactive knowledge
-* Build your own private AI knowledge base
+- Ask questions about your own notes  
+- Extract insights from large PDFs instantly  
+- Turn documents into a conversational AI  
+- Build your own private knowledge base  
 
 ---
 
 ## 🧠 What It Does
 
-Upload your documents and start asking questions like:
+Upload documents and ask:
 
-* *“What did I write about neural networks?”*
-* *“Summarize this research paper”*
-* *“Find key points from my notes”*
+- *“What did I write about neural networks?”*  
+- *“Summarize this research paper”*  
+- *“Find key points from my notes”*  
 
-DOC-CHAT-AI reads, understands, and responds using only your data.
+DOC-CHAT-AI reads, understands, and responds using **your data only**.
 
 ---
 
 ## ⚡ Core Capabilities
 
-* 📄 **Document Understanding**
-  Extracts and processes information from PDFs and text files
-
-* 🔍 **Smart Search**
-  Finds the most relevant parts of your documents instantly
-
-* 💬 **Conversational AI**
-  Ask questions naturally and get human-like responses
-
-* 🧠 **Context-Aware Answers**
-  Responses are grounded in your uploaded content
-
-* 🔒 **Privacy-Focused (Optional)**
-  Can run locally with your own data
+- 📄 **Document Understanding** – Parses PDFs & text files  
+- 🔍 **Semantic Search** – Finds relevant content instantly  
+- 💬 **Conversational AI** – Natural language interaction  
+- 🧠 **Context-Aware Answers** – Grounded in your data  
+- 🔒 **Privacy-Focused** – Can run locally  
 
 ---
 
-## 🛠️ Built With
+## 🛠️ Tech Stack
 
-* **Python** for backend logic
-* **Vector Databases** for semantic search
-* **Embeddings** for understanding text meaning
-* **LLMs** for generating intelligent responses
-* **Vanilla JavaScript** for a simple and clean UI
-
----
-
-## 🎯 Use Cases
-
-* 📚 Students revising notes and study material
-* 🧑‍💻 Developers documenting and querying knowledge
-* 🧪 Researchers analyzing papers
-* 🧠 Anyone who wants a smarter way to interact with their data
+- **Backend:** Python + FastAPI  
+- **LLM:** Local LLM via Ollama (LLaMA models)  
+- **Vector DB:** FAISS / Chroma  
+- **Embeddings:** Sentence Transformers  
+- **Frontend:** Vanilla JavaScript  
 
 ---
 
-## 🌟 Vision
+## 📦 Project Setup
 
-DOC-CHAT-AI aims to become a **personal knowledge engine** — a system that doesn't just store information, but helps you:
+## 1. Clone the Repository
 
-* Understand faster
-* Recall instantly
-* Learn smarter
+```bash
+git clone https://github.com/your-username/Doc-Chat-AI.git
+cd Doc-Chat-AI
 
----
+## 2. Run Backend
 
-## 📸 Future Enhancements
+```bash
+cd backend
+uvicorn api.main:app --reload
 
-* Multi-document reasoning
-* Highlighting source references
-* Chat history and memory
-* Advanced UI/UX
-* Support for more file types
+## 3. Run LLaMA (Ollama via Docker)
 
----
+Pull Ollama Image
 
-## 🤝 Contributing
+```bash
+docker pull ollama/ollama
 
-This is a learning-driven project, and contributions, ideas, and improvements are always welcome.
+Start Container
 
----
+```bash
+docker run -d -p 11434:11434 --name ollama ollama/ollama
 
+Pull LLaMA Model
 
-
-⭐ *If you like this project, consider starring the repo!*
+```bash
+docker exec -it ollama ollama pull llama3
