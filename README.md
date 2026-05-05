@@ -59,22 +59,24 @@ DOC-CHAT-AI reads, understands, and responds using **your data only**.
 ```bash
 git clone https://github.com/your-username/Doc-Chat-AI.git
 cd Doc-Chat-AI
-
-2. Run Backend
-
+```
+### 2. Run Backend
+```
 cd backend
 uvicorn api.main:app --reload
+```
+### 3. Run LLaMA (Ollama via Docker)
 
-3. Run LLaMA (Ollama via Docker)
-
-Pull Ollama Image
-
+#### Pull Ollama Image
+```
 docker pull ollama/ollama
+```
 
-Start Container
-
+#### Start Container
+```
 docker run -d -p 11434:11434 --name ollama ollama/ollama
-
-Pull LLaMA Model
-
+```
+#### Pull LLaMA Model
+```
 docker exec -it ollama ollama pull llama3
+```
