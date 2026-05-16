@@ -56,8 +56,6 @@ fileInput.addEventListener("change", async () => {
     progressFill.style.width = "100%";
 
     uploadedFileName = data.file;
-
-    // ✅ REMOVE PROGRESS BAR AFTER UPLOAD
     setTimeout(() => {
       fileItem.innerHTML = `📄 ${data.file}`;
     }, 500);
@@ -97,7 +95,7 @@ async function sendMessage() {
       body: JSON.stringify({
         query: text,
         file: uploadedFileName,
-        mode: document.getElementById("mode").value
+        mode: document.getElementById("mode").value.toLowerCase()
       }),
     });
 
